@@ -10,4 +10,17 @@ import jakarta.persistence.*
 class Company(
     @Id @Column(name = "id", nullable = false) @Enumerated(EnumType.STRING) val id: CompanyType = CompanyType.MANUAL,
     var active: Boolean = true
-) : BaseEntity()
+) : BaseEntity() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Company
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}
