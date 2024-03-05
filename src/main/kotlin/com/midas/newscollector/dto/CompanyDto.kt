@@ -9,19 +9,19 @@ import java.time.LocalDateTime
  * DTO for {@link com.midas.newscollector.domain.Company}
  */
 data class CompanyDto(
-    val id: CompanyType = CompanyType.MANUAL,
+    val companyType: CompanyType = CompanyType.MANUAL,
     val active: Boolean = true,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
 ) {
     fun toEntity(): Company {
-        return Company(id = id, active = active)
+        return Company(id = companyType, active = active)
     }
 
     companion object {
         fun of(company: Company): CompanyDto {
             return CompanyDto(
-                id = company.id,
+                companyType = company.id,
                 active = company.active,
                 createdAt = company.createdAt,
                 updatedAt = company.updatedAt
