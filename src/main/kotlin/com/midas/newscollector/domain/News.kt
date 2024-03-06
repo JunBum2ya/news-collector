@@ -1,5 +1,7 @@
 package com.midas.newscollector.domain
 
+import com.midas.newscollector.dto.KeywordDto
+import com.midas.newscollector.dto.NewsDto
 import jakarta.persistence.*
 import org.hibernate.annotations.Comment
 
@@ -7,11 +9,11 @@ import org.hibernate.annotations.Comment
 class News(
     @Column(nullable = false, length = 20) @Comment("신문사") private var publisher: String,
     @Column(nullable = false) @Comment("기사 제목") private var title: String,
-    @Column(length = 1000) @Comment("썸네일 이미지 경로") var thumbnailPath: String? = null,
-    @Column(nullable = false) @Comment("기사 내용") var description: String,
-    @Column(nullable = false, unique = true, length = 500) @Comment("기사 페이지 링크 주소") var url: String,
+    @Column(length = 1000) @Comment("썸네일 이미지 경로") private var thumbnailPath: String? = null,
+    @Column(nullable = false) @Comment("기사 내용") private var description: String,
+    @Column(nullable = false, unique = true, length = 500) @Comment("기사 페이지 링크 주소") private var url: String,
     @OneToMany(mappedBy = "news") val keywords: MutableSet<KeywordNews> = mutableSetOf()
-): BaseEntity() {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -20,8 +22,29 @@ class News(
     fun getPublisher(): String {
         return this.publisher
     }
+
     fun getTitle(): String {
         return this.title
+    }
+
+    fun getThumbnail(): String? {
+        return this.thumbnailPath
+    }
+
+    fun getDescription(): String {
+        return this.description
+    }
+
+    fun getUrl(): String {
+        return this.url
+    }
+
+    fun update(newsDto: NewsDto) {
+        this.publisher = newsDto.publisher
+        this.title = newsDto.title
+        this.thumbnailPath = newsDto.thumbnailPath
+        this.description = newsDto.description
+        newsDto.keywords.forEach { this.addKeyword(it.toEntity()) }
     }
 
     fun addKeyword(keyword: Keyword) {

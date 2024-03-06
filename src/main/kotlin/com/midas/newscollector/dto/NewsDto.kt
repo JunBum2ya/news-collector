@@ -25,4 +25,17 @@ data class NewsDto(
         keywords.stream().map { it.toEntity() }.forEach { news.addKeyword(it) }
         return news
     }
+
+    companion object {
+        fun of(news: News): NewsDto {
+            return NewsDto(
+                publisher = news.getPublisher(),
+                title = news.getTitle(),
+                thumbnailPath = news.getThumbnail(),
+                description = news.getDescription(),
+                url = news.getUrl(),
+                keywords = news.keywords.stream().map { KeywordDto.of(it.keyword) }.collect(Collectors.toSet())
+            )
+        }
+    }
 }
