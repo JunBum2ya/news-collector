@@ -13,7 +13,6 @@ import org.mockito.BDDMockito.then
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 
 @DisplayName("비즈니스 로직 - 뉴스 사이트")
@@ -71,13 +70,15 @@ class CompanyServiceTest {
     @Test
     fun givenCompanyDto_whenDeactivateCompany_thenReturnsCompanyDto() {
         //given
-        given(companyRepository.findByIdOrNull(any(CompanyType::class.java))).willReturn(
-            Company(id = CompanyType.NAVER, active = true)
+        given(companyRepository.findById(any(CompanyType::class.java))).willReturn(
+            Optional.of(Company(id = CompanyType.NAVER, active = true))
         )
         //when
         val companyDto = companyService.deactivateCompany(CompanyType.NAVER)
         //then
-        then(companyRepository).should().findByIdOrNull(any(CompanyType::class.java))
+        then(companyRepository).should().findById(any(CompanyType::class.java))
+        assertThat(companyDto).isNotNull
+        assertThat(companyDto.active).isFalse()
     }
 
     private fun createCompanies(): List<Company> {

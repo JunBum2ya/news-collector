@@ -4,4 +4,5 @@ import com.midas.newscollector.domain.News
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface NewsRepository : JpaRepository<News, Long> {
+    fun getNewsByUrl(url: String): News?
 }

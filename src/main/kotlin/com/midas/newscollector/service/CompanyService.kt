@@ -2,6 +2,8 @@ package com.midas.newscollector.service
 
 import com.midas.newscollector.domain.constant.CompanyType
 import com.midas.newscollector.dto.CompanyDto
+import com.midas.newscollector.dto.response.ResponseStatus
+import com.midas.newscollector.exception.CustomException
 import com.midas.newscollector.repository.CompanyRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -41,7 +43,8 @@ class CompanyService(private val companyRepository: CompanyRepository) {
      * 플랫폼 활성화
      */
     fun activateCompany(companyType: CompanyType): CompanyDto {
-        val company = companyRepository.findById(companyType).orElseThrow { Exception("null") }
+        val company = companyRepository.findById(companyType)
+            .orElseThrow { CustomException(ResponseStatus.ACCESS_NOT_EXIST_ENTITY) }
         company.active = true
         //todo 활성화 시 크롤링 진행
         return CompanyDto.of(company)
@@ -51,7 +54,8 @@ class CompanyService(private val companyRepository: CompanyRepository) {
      * 플랫폼 비활성화
      */
     fun deactivateCompany(companyType: CompanyType): CompanyDto {
-        val company = companyRepository.findByIdOrNull(companyType) ?: throw Exception("null")
+        val company = companyRepository.findById(companyType)
+            .orElseThrow { CustomException(ResponseStatus.ACCESS_NOT_EXIST_ENTITY) }
         company.active = false
         return CompanyDto.of(company)
     }

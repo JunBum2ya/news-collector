@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class CommonResponse<T>(
-    private val code: String,
-    private val message: String,
-    private val data: T? = null
+    val code: String,
+    val message: String,
+    val data: T? = null
 ) {
     companion object {
         fun <T> of(status: ResponseStatus, data: T): CommonResponse<T> {

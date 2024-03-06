@@ -6,8 +6,8 @@ import java.io.Serializable
 @Entity
 @IdClass(KeywordNews.KeywordNewsId::class)
 class KeywordNews(
-    @Id @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "keyword_id", nullable = false) private val keyword: Keyword,
-    @Id @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "news_id", nullable = false) private val news: News
+    @Id @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "keyword_id", nullable = false) val keyword: Keyword,
+    @Id @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "news_id", nullable = false) val news: News
 ): BaseEntity() {
     data class KeywordNewsId(
         val keyword: Long,

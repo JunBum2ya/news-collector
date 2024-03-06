@@ -16,4 +16,15 @@ data class KeywordDto(
     fun toEntity(): Keyword {
         return Keyword(name = name, active = active)
     }
+
+    companion object {
+        fun of(keyword: Keyword): KeywordDto {
+            return KeywordDto(
+                name = keyword.name,
+                active = keyword.active,
+                createdAt = keyword.createdAt,
+                updatedAt = keyword.updatedAt
+            )
+        }
+    }
 }

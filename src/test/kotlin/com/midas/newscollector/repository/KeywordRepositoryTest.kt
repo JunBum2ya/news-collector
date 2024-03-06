@@ -43,6 +43,19 @@ class KeywordRepositoryTest(@Autowired private val keywordRepository: KeywordRep
         assertThat(keywords.size).isEqualTo(1)
     }
 
+    @DisplayName("키워드를 조회하면 keyword가 반환된다.")
+    @Test
+    fun givenKeywordName_whenFindKeyword_thenReturnsKeyword() {
+        //given
+        createKeyword("코로나", true)
+        //when
+        val keyword = keywordRepository.getKeywordByName("코로나")
+        //then
+        assertThat(keyword).isNotNull
+        assertThat(keyword?.name).isEqualTo("코로나")
+        assertThat(keyword?.active).isTrue()
+    }
+
     private fun createKeyword(name: String, isActive: Boolean = true): Keyword {
         val keyword = Keyword(name = name, active = isActive)
         return keywordRepository.save(keyword)
