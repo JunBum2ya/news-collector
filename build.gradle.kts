@@ -33,6 +33,9 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation("org.jsoup:jsoup:1.17.2")
+
 }
 
 tasks.withType<KotlinCompile> {
