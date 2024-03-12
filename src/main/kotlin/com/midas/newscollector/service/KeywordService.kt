@@ -1,5 +1,6 @@
 package com.midas.newscollector.service
 
+import com.midas.newscollector.crawler.NewsDataCrawlerStrategy
 import com.midas.newscollector.domain.Keyword
 import com.midas.newscollector.dto.KeywordDto
 import com.midas.newscollector.dto.response.ResponseStatus
@@ -11,7 +12,7 @@ import kotlin.jvm.Throws
 
 @Transactional
 @Service
-class KeywordService(private val keywordRepository: KeywordRepository) {
+class KeywordService(private val keywordRepository: KeywordRepository, private val newsCrawlerStrategy: NewsDataCrawlerStrategy) {
 
     /**
      * 활성화된 키워드 반환
@@ -28,6 +29,7 @@ class KeywordService(private val keywordRepository: KeywordRepository) {
         val keyword = keywordRepository.getKeywordByName(keywordStr)
             ?: keywordRepository.save(Keyword(name = keywordStr))
         keyword.active = true //활성화
+        newsCrawlerStrategy.crawlNews(keywordStr) //크롤링 실행
         return KeywordDto.of(keyword)
     }
 

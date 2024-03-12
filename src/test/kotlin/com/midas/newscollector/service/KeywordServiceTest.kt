@@ -1,5 +1,6 @@
 package com.midas.newscollector.service
 
+import com.midas.newscollector.crawler.NewsDataCrawlerStrategy
 import com.midas.newscollector.domain.Keyword
 import com.midas.newscollector.dto.response.ResponseStatus
 import com.midas.newscollector.exception.CustomException
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -23,6 +25,8 @@ class KeywordServiceTest {
 
     @Mock
     private lateinit var keywordRepository: KeywordRepository
+    @Mock
+    private lateinit var crawlerStrategy: NewsDataCrawlerStrategy
 
     @DisplayName("활성화된 키워드를 조회하면 키워드 리스트가 반환된다.")
     @Test
@@ -46,6 +50,7 @@ class KeywordServiceTest {
         val keyword = keywordService.activateKeyword("코로나")
         //then
         then(keywordRepository).should().getKeywordByName(any())
+        then(crawlerStrategy).should().crawlNews("코로나")
         assertThat(keyword).isNotNull
         assertThat(keyword.active).isTrue()
     }
@@ -61,6 +66,7 @@ class KeywordServiceTest {
         //then
         then(keywordRepository).should().getKeywordByName(any())
         then(keywordRepository).should().save(any())
+        then(crawlerStrategy).should().crawlNews("코로나")
         assertThat(keyword).isNotNull
         assertThat(keyword.active).isTrue()
     }

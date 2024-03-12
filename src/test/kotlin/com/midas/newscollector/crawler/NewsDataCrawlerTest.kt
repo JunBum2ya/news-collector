@@ -1,5 +1,6 @@
 package com.midas.newscollector.crawler
 
+import com.midas.newscollector.domain.constant.CompanyType
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -14,11 +15,11 @@ class NewsDataCrawlerTest {
     @DisplayName("CompanyCode와 키워드로 크롤링을 하면 NewsDto List를 반환한다.")
     @ParameterizedTest
     @MethodSource("provideSingleCrawlingParameter")
-    fun givenCrawlerTypeAndKeyword_whenCrawlingKeyword_thenReturnsNewsDtoList(crawlerType: CrawlerType) {
+    fun givenCrawlerTypeAndKeyword_whenCrawlingKeyword_thenReturnsNewsDtoList(companyType: CompanyType) {
         //given
         val keyword = "선거"
         //when
-        val crawler = NewsDataCrawlerFactory().newInstance(crawlerType)
+        val crawler = NewsDataCrawlerFactory().newInstance(companyType)
         val newsDtoList = crawler.searchNewsList(keyword)
         //then
         newsDtoList.forEach { println(it.title) }
@@ -26,9 +27,9 @@ class NewsDataCrawlerTest {
 
     private fun provideSingleCrawlingParameter(): Stream<Arguments> {
         return Stream.of<Arguments>(
-            Arguments.of(CrawlerType.GOOGLE, "코로나"),
-            Arguments.of(CrawlerType.DAUM, "코로나"),
-            Arguments.of(CrawlerType.NAVER, "코로나")
+            Arguments.of(CompanyType.GOOGLE, "코로나"),
+            Arguments.of(CompanyType.DAUM, "코로나"),
+            Arguments.of(CompanyType.NAVER, "코로나")
         )
     }
 
@@ -37,7 +38,7 @@ class NewsDataCrawlerTest {
     @MethodSource("provideManyKeywordCrawlingParameter")
     @Throws(IOException::class)
     fun givenCompanyCodeAndKeywordList_whenCrawlingNews_thenNewsDtoList(
-        companyType: CrawlerType,
+        companyType: CompanyType,
         keywords: List<String>
     ) {
         //given
@@ -53,9 +54,9 @@ class NewsDataCrawlerTest {
 
     private fun provideManyKeywordCrawlingParameter(): Stream<Arguments> {
         return Stream.of<Arguments>(
-            Arguments.of(CrawlerType.GOOGLE, listOf("코로나", "신약")),
-            Arguments.of(CrawlerType.DAUM, listOf("마을", "용인")),
-            Arguments.of(CrawlerType.NAVER, listOf("무역", "코딩"))
+            Arguments.of(CompanyType.GOOGLE, listOf("코로나", "신약")),
+            Arguments.of(CompanyType.DAUM, listOf("마을", "용인")),
+            Arguments.of(CompanyType.NAVER, listOf("무역", "코딩"))
         )
     }
 

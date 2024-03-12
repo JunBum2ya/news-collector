@@ -1,15 +1,18 @@
 package com.midas.newscollector.crawler
 
+import com.midas.newscollector.domain.constant.CompanyType
+
 class NewsDataCrawlerFactory {
-    fun newInstance(type: CrawlerType): NewsDataCrawler {
+    fun newInstance(type: CompanyType): NewsDataCrawler {
         return when (type) {
-            CrawlerType.GOOGLE -> GoogleNewsDataCrawler()
-            CrawlerType.NAVER -> NaverNewsDataCrawler()
-            CrawlerType.DAUM -> DaumNewsDataCrawler()
+            CompanyType.GOOGLE -> GoogleNewsDataCrawler()
+            CompanyType.NAVER -> NaverNewsDataCrawler()
+            CompanyType.DAUM -> DaumNewsDataCrawler()
+            CompanyType.MANUAL -> ManualNewsDataCrawler()
         }
     }
 
-    fun newInstance(types: Set<CrawlerType>): List<NewsDataCrawler> {
+    fun newInstance(types: Set<CompanyType>): List<NewsDataCrawler> {
         return types.stream().map(this::newInstance).toList()
     }
 
