@@ -5,101 +5,75 @@ import com.midas.newscollector.domain.Keyword
 import com.midas.newscollector.dto.response.ResponseStatus
 import com.midas.newscollector.exception.CustomException
 import com.midas.newscollector.repository.KeywordRepository
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
-import org.mockito.BDDMockito.*
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.jupiter.MockitoExtension
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.throwable.shouldHaveMessage
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 
-@DisplayName("비즈니스 로직 - 키워드")
-@ExtendWith(MockitoExtension::class)
-class KeywordServiceTest {
-    @InjectMocks
-    private lateinit var keywordService: KeywordService
+class KeywordServiceTest : BehaviorSpec({
+    val keywordRepository = mockk<KeywordRepository>()
+    val crawlerStrategy = mockk<NewsDataCrawlerStrategy>()
+    val keywordService = KeywordService(keywordRepository, crawlerStrategy)
 
-    @Mock
-    private lateinit var keywordRepository: KeywordRepository
-    @Mock
-    private lateinit var crawlerStrategy: NewsDataCrawlerStrategy
-
-    @DisplayName("활성화된 키워드를 조회하면 키워드 리스트가 반환된다.")
-    @Test
-    fun givenNothing_whenSearchActiveKeyword_thenReturnsKeywordList() {
-        //given
-        given(keywordRepository.searchActiveKeywords()).willReturn(listOf(Keyword(name = "선거"), Keyword(name = "코로나")))
-        //when
-        val keywords = keywordService.getActiveKeywords()
-        //then
-        then(keywordRepository).should().searchActiveKeywords()
-        assertThat(keywords).isNotEmpty
-        assertThat(keywords.size).isEqualTo(2)
+    Given("아무것도 주어지지 않았을 때") {
+        every { keywordRepository.searchActiveKeywords() }.returns(listOf(Keyword("선거"), Keyword(name = "코로나")))
+        When("활성화된 키워드를 조회하면") {
+            val keywords = keywordService.getActiveKeywords()
+            Then("키워드 리스트가 반환된다.") {
+                keywords shouldHaveSize 2
+                verify { keywordRepository.searchActiveKeywords() }
+            }
+        }
     }
-
-    @DisplayName("이미 저장되어 있는 키워드를 활성화 하면 keywordDto가 반환된다.")
-    @Test
-    fun givenExistKeywordStr_whenActivateKeyword_thenReturnsKeywordDto() {
-        //given
-        given(keywordRepository.getKeywordByName(any())).willReturn(Keyword("코로나", active = false))
-        //when
-        val keyword = keywordService.activateKeyword("코로나")
-        //then
-        then(keywordRepository).should().getKeywordByName(any())
-        then(crawlerStrategy).should().crawlNews("코로나")
-        assertThat(keyword).isNotNull
-        assertThat(keyword.active).isTrue()
+    Given("키워드 이름으로") {
+        every { crawlerStrategy.crawlNews(any(String::class)) }.returns(listOf())
+        every { keywordRepository.save(any(Keyword::class)) }.returns(Keyword("코로나", false))
+        When("이미 저장되어 있는 키워드를 활성화 하면") {
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword("코로나", active = false))
+            val keyword = keywordService.activateKeyword("코로나")
+            Then("수정 후 KeywordDto가 반환된다.") {
+                keyword shouldNotBe null
+                keyword.active shouldBe true
+                verify { keywordRepository.getKeywordByName(any(String::class)) }
+                verify { crawlerStrategy.crawlNews(any(String::class)) }
+            }
+        }
+        When("저장되지 않은 키워드를 활성화 하면") {
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(null)
+            val keyword = keywordService.activateKeyword("코로나")
+            Then("저장 후 KeywordDto가 반환된다.") {
+                keyword shouldNotBe null
+                keyword.active shouldBe true
+                verify { keywordRepository.getKeywordByName(any(String::class)) }
+                verify { keywordRepository.save(any(Keyword::class)) }
+                verify { crawlerStrategy.crawlNews(any(String::class)) }
+            }
+        }
     }
-
-    @DisplayName("저장되어 있지 않은 키워드를 활성화 하면 키워드가 저장후 keywordDto가 반환된다.")
-    @Test
-    fun givenNotExistKeywordStr_whenActivateKeyword_thenReturnsKeywordDto() {
-        //given
-        given(keywordRepository.getKeywordByName(any())).willReturn(null)
-        given(keywordRepository.save(any())).willReturn(Keyword("코로나"))
-        //when
-        val keyword = keywordService.activateKeyword("코로나")
-        //then
-        then(keywordRepository).should().getKeywordByName(any())
-        then(keywordRepository).should().save(any())
-        then(crawlerStrategy).should().crawlNews("코로나")
-        assertThat(keyword).isNotNull
-        assertThat(keyword.active).isTrue()
+    Given("키워드 이름으로") {
+        val keywordName = "코로나"
+        When("이미 저장된 키워드를 비활성화 하면") {
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(keywordName, true))
+            val keyword = keywordService.deactivateKeyword(keywordName)
+            Then("수정 후 KeywordDto가 반환된다.") {
+                keyword shouldNotBe null
+                keyword.active shouldBe false
+                verify { keywordRepository.getKeywordByName(any(String::class)) }
+            }
+        }
+        When("저장되지 않은 키워드를 비활성화 하면") {
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(null)
+            Then("예외가 발생한다.") {
+                val exception = shouldThrow<CustomException> { keywordService.deactivateKeyword(keywordName) }
+                exception.code shouldBe ResponseStatus.ACCESS_NOT_EXIST_ENTITY.code
+                exception shouldHaveMessage ResponseStatus.ACCESS_NOT_EXIST_ENTITY.message
+                verify { keywordRepository.getKeywordByName(any(String::class)) }
+            }
+        }
     }
-
-    @DisplayName("저장된 키워드를 비활성화 하면 keyowrdDto가 반환된다.")
-    @Test
-    fun givenExistKeywordStr_whenDeactivateKeyword_thenReturnsKeywordDto() {
-        //given
-        given(keywordRepository.getKeywordByName(any())).willReturn(Keyword(name = "코로나"))
-        //when
-        val keyword = keywordService.deactivateKeyword("코로나")
-        //then
-        then(keywordRepository).should().getKeywordByName(any())
-        assertThat(keyword).isNotNull
-        assertThat(keyword.active).isFalse()
-    }
-
-    @DisplayName("저장지 않은 키워드를 비활성화 하면 에러가 발생한다.")
-    @Test
-    fun givenNotExistKeywordStr_whenDeactivateKeyword_thenReturnsKeywordDto() {
-        //given
-        given(keywordRepository.getKeywordByName(any())).willReturn(null)
-        //when
-        val exception = assertThrows<CustomException> { keywordService.deactivateKeyword("코로나") }
-        //then
-        then(keywordRepository).should().getKeywordByName(any())
-        assertThat(exception.code).isEqualTo(ResponseStatus.ACCESS_NOT_EXIST_ENTITY.code)
-    }
-
-    // add
-    private fun <T> any(): T {
-        Mockito.any<T>()
-        return null as T
-    }
-
-}
+})
