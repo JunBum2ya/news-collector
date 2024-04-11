@@ -65,6 +65,13 @@ dependencies {
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
     // jsoup
     implementation("org.jsoup:jsoup:1.17.2")
+    // kotest
+    testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
+    testImplementation("io.kotest:kotest-assertions-core:5.4.2")
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
+    testImplementation("io.kotest:kotest-property:4.5.0")
+    // mockk
+    testImplementation("io.mockk:mockk:1.13.8")
 }
 
 tasks.withType<KotlinCompile> {
