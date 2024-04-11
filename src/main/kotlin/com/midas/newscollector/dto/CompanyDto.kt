@@ -19,7 +19,7 @@ data class CompanyDto(
     }
 
     companion object {
-        fun of(company: Company): CompanyDto {
+        fun from(company: Company): CompanyDto {
             return CompanyDto(
                 companyType = company.id,
                 active = company.active,
