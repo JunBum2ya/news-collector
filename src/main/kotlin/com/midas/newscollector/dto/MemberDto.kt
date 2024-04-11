@@ -9,7 +9,7 @@ import java.time.LocalDateTime
  */
 data class MemberDto(
     val memberId: String,
-    val email: String? = null,
+    val email: String,
     val password: String,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null

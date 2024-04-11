@@ -1,5 +1,6 @@
 package com.midas.newscollector.crawler
 
+import com.midas.newscollector.dto.KeywordDto
 import com.midas.newscollector.dto.NewsDto
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -23,11 +24,9 @@ class GoogleNewsDataCrawler : NewsDataCrawler {
                 break //검색 결과가 없으면 루프 종료
             }
             val newsElements = document.select(".SoaBEf") //Element에서 데이터 추출
-            newsDtoList.addAll(newsElements.stream().map(Function { element: Element? ->
-                this.extractNewsListData(
-                    element!!
-                )
-            }).toList()) //리스트에 담는다.
+            newsDtoList.addAll(newsElements.stream()
+                .map { this.extractNewsListData(it, keyword) }.toList()
+            ) //리스트에 담는다.
         } while (true)
         return newsDtoList
     }
@@ -50,14 +49,15 @@ class GoogleNewsDataCrawler : NewsDataCrawler {
      * @throws NullPointerException
      */
     @Throws(NullPointerException::class)
-    private fun extractNewsListData(element: Element): NewsDto {
+    private fun extractNewsListData(element: Element, keyword: String): NewsDto {
         val thumbnailElement = element.selectFirst(".uhHOwf img")
         return NewsDto(
             publisher = element.select(".MgUUmf span").text(),
             title = element.select(".n0jPhd").text(),
             description = element.select(".GI74Re").text(),
             thumbnailPath = thumbnailElement?.attr("attr"),
-            url = element.selectFirst(".WlydOe").attr("href")
+            url = element.selectFirst(".WlydOe").attr("href"),
+            keywords = mutableSetOf(KeywordDto(name = keyword))
         )
     }
 

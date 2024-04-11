@@ -7,16 +7,20 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
 class Member(
-    @Column(length = 50, nullable = false, unique = true) @Comment("사용자 아이디") val memberId: String,
-    @Column(length = 50) @Comment("이메일") private var email: String?,
-    @Column(nullable = false) @Comment("비밀번호") private var password: String
-) : BaseEntity() {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     @Comment("대체키")
-    private var id: Long? = null
-
+    private var id: Long? = null,
+    @Column(length = 50, nullable = false, unique = true)
+    @Comment("사용자 아이디")
+    val memberId: String,
+    @Column(length = 50)
+    @Comment("이메일")
+    private var email: String,
+    @Column(nullable = false)
+    @Comment("비밀번호")
+    private var password: String
+) : BaseEntity() {
     /**
      * Member update
      */
@@ -25,7 +29,7 @@ class Member(
         passwordEncoder?.let { password = it.encode(data.password) }
     }
 
-    fun getEmail(): String? {
+    fun getEmail(): String {
         return this.email
     }
 

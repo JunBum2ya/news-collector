@@ -1,5 +1,6 @@
 package com.midas.newscollector.crawler
 
+import com.midas.newscollector.dto.KeywordDto
 import com.midas.newscollector.dto.NewsDto
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -17,7 +18,7 @@ class NaverNewsDataCrawler : NewsDataCrawler {
             }
             newsList.addAll(document.select(".news_wrap")
                 .stream()
-                .map(this::extractNewsListData)
+                .map { extractNewsListData(it, keyword) }
                 .toList()
             )
             try {
@@ -38,7 +39,7 @@ class NaverNewsDataCrawler : NewsDataCrawler {
         return newsList
     }
 
-    private fun extractNewsListData(element: Element): NewsDto {
+    private fun extractNewsListData(element: Element, keyword: String): NewsDto {
         val thumbnailElement = element.selectFirst(".news_contents .dsc_thumb img")
         val titleElement = element.selectFirst(".news_contents .news_tit")
         return NewsDto(
@@ -46,7 +47,8 @@ class NaverNewsDataCrawler : NewsDataCrawler {
             thumbnailPath = thumbnailElement?.attr("src"),
             title = if (titleElement != null) titleElement.text() else "",
             description = element.selectFirst(".news_contents .news_dsc .dsc_wrap a").text(),
-            url = if (titleElement != null) titleElement.attr("href") else ""
+            url = if (titleElement != null) titleElement.attr("href") else "",
+            keywords = mutableSetOf(KeywordDto(keyword))
         )
     }
 

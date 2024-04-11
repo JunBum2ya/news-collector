@@ -40,7 +40,6 @@ spring:
     init:
       mode: always
 
-
 ---
 
 spring:
