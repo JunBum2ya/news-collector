@@ -26,8 +26,8 @@ class KeywordRepositoryTest(@Autowired private val keywordRepository: KeywordRep
         //then
         assertThat(savedKeyword).isNotNull()
         assertThat(savedKeyword.name).isEqualTo("코로나")
-        assertThat(savedKeyword.createdAt).isNotNull()
-        assertThat(savedKeyword.updatedAt).isNotNull()
+        assertThat(savedKeyword.getCreatedAt()).isNotNull()
+        assertThat(savedKeyword.getUpdatedAt()).isNotNull()
     }
 
     @DisplayName("활성화된 키워드를 조회하면 키워드 리스트가 반환된다.")

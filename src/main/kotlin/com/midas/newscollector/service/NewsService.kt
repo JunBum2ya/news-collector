@@ -1,6 +1,7 @@
 package com.midas.newscollector.service
 
 import com.midas.newscollector.dto.NewsDto
+import com.midas.newscollector.dto.param.NewsSearchParam
 import com.midas.newscollector.dto.request.NewsSearchRequest
 import com.midas.newscollector.dto.response.ResponseStatus
 import com.midas.newscollector.exception.CustomException
@@ -14,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class NewsService(private val newsRepository: NewsRepository) {
     @Transactional(readOnly = true)
-    fun searchNews(request: NewsSearchRequest, pageable: Pageable): Page<NewsDto> {
-        return newsRepository.findAll(pageable).map(NewsDto::of)
+    fun searchNews(param: NewsSearchParam, pageable: Pageable): Page<NewsDto> {
+        return newsRepository.searchNews(param, pageable).map(NewsDto::of)
     }
 
     fun createNews(newsDto: NewsDto): NewsDto {

@@ -18,10 +18,16 @@ abstract class BaseEntity {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     @Comment("생성일시")
-    var createdAt: LocalDateTime? = null
-        private set
+    private var createdAt: LocalDateTime? = null
     @LastModifiedDate
     @Comment("수정일시")
-    var updatedAt: LocalDateTime? = null
-        private set
+    private var updatedAt: LocalDateTime? = null
+
+    fun getCreatedAt(): LocalDateTime? {
+        return this.createdAt
+    }
+
+    fun getUpdatedAt(): LocalDateTime? {
+        return this.updatedAt
+    }
 }

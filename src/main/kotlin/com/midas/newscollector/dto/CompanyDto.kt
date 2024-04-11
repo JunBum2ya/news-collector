@@ -23,8 +23,8 @@ data class CompanyDto(
             return CompanyDto(
                 companyType = company.id,
                 active = company.active,
-                createdAt = company.createdAt,
-                updatedAt = company.updatedAt
+                createdAt = company.getCreatedAt(),
+                updatedAt = company.getUpdatedAt()
             )
         }
     }

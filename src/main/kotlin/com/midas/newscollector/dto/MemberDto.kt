@@ -24,8 +24,8 @@ data class MemberDto(
                 memberId = member.memberId,
                 email = member.getEmail(),
                 password = member.getPassword(),
-                createdAt = member.createdAt,
-                updatedAt = member.updatedAt
+                createdAt = member.getCreatedAt(),
+                updatedAt = member.getUpdatedAt()
             )
         }
     }

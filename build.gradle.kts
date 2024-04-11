@@ -1,18 +1,43 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath("gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.22")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.7.22")
+        classpath("org.jetbrains.kotlin:kotlin-noarg:1.7.22")
+    }
+}
+
 plugins {
-    id("org.springframework.boot") version "3.2.3"
+    id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
-    kotlin("plugin.jpa") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
+    kotlin("plugin.jpa") version "1.9.23"
+    kotlin("plugin.allopen") version "1.6.21"
+    kotlin("kapt") version "1.7.22"
+    idea
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 group = "com.midas"
 version = "0.0.1-SNAPSHOT"
+val queryDslVersion = "5.0.0" // QueryDSL Version Setting
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
+}
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
 }
 
 repositories {
@@ -33,9 +58,13 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    // QueryDSL Implementation
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.0.5")
+    implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+    implementation("com.infobip:infobip-spring-data-jpa-querydsl-boot-starter:8.1.1")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    // jsoup
     implementation("org.jsoup:jsoup:1.17.2")
-
 }
 
 tasks.withType<KotlinCompile> {
@@ -47,4 +76,16 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+
+/**
+ * QueryDSL Build Options
+ */
+idea {
+    module {
+        val kaptMain = file("build/generated/source/kapt/main")
+        sourceDirs.add(kaptMain)
+        generatedSourceDirs.add(kaptMain)
+    }
 }

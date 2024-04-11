@@ -29,7 +29,7 @@ class NewsRepositoryTest(@Autowired private val newsRepository: NewsRepository) 
         assertThat(savedNews).isNotNull()
         assertThat(savedNews.getTitle()).isEqualTo("코로나 증가")
         assertThat(savedNews.keywords.size).isEqualTo(2)
-        assertThat(savedNews.createdAt).isNotNull()
-        assertThat(savedNews.updatedAt).isNotNull()
+        assertThat(savedNews.getCreatedAt()).isNotNull()
+        assertThat(savedNews.getUpdatedAt()).isNotNull()
     }
 }

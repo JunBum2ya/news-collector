@@ -28,8 +28,8 @@ class MemberRepositoryTest(@Autowired private val memberRepository: MemberReposi
         //then
         assertThat(savedMember).isNotNull()
         assertThat(savedMember.memberId).isEqualTo(member.memberId)
-        assertThat(savedMember.createdAt).isNotNull()
-        assertThat(savedMember.updatedAt).isNotNull()
+        assertThat(savedMember.getCreatedAt()).isNotNull()
+        assertThat(savedMember.getUpdatedAt()).isNotNull()
     }
 
     @DisplayName("memberId로 조회를 하면 Optional Member가 반환된다.")
@@ -58,7 +58,7 @@ class MemberRepositoryTest(@Autowired private val memberRepository: MemberReposi
             assertThat(it.memberId).isNotEqualTo("test")
             assertThat(it.getEmail()).isEqualTo("0000@test.com")
             assertThat(it.getPassword()).isNotEqualTo("46145")
-            assertThat(it.createdAt).isNotEqualTo(it.updatedAt)
+            assertThat(it.getCreatedAt()).isNotEqualTo(it.getUpdatedAt())
         }
     }
 

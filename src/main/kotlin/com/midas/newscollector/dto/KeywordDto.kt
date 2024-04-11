@@ -22,8 +22,8 @@ data class KeywordDto(
             return KeywordDto(
                 name = keyword.name,
                 active = keyword.active,
-                createdAt = keyword.createdAt,
-                updatedAt = keyword.updatedAt
+                createdAt = keyword.getCreatedAt(),
+                updatedAt = keyword.getUpdatedAt()
             )
         }
     }
