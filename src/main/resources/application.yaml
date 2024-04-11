@@ -3,9 +3,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/board
-    username: dbuser
-    password: dbuser
+    url: jdbc:postgresql://localhost:5432/NEWS_DB
+    username: NEWS_USER
+    password: NEWS_PASSWORD
   jpa:
     hibernate:
       ddl-auto: create
