@@ -4,6 +4,7 @@ import com.midas.newscollector.config.JpaConfig
 import com.midas.newscollector.domain.Company
 import com.midas.newscollector.domain.constant.CompanyType
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -18,11 +19,14 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles("testdb")
 class CompanyRepositoryTest(@Autowired private val companyRepository: CompanyRepository) {
 
+    val companies = mutableListOf<Company>()
+
     @BeforeEach
     fun initCompany() {
-        companyRepository.save(Company(CompanyType.NAVER, active = false))
-        companyRepository.save(Company(CompanyType.GOOGLE))
-        companyRepository.save(Company(CompanyType.DAUM))
+        companies.clear()
+        companies.add(companyRepository.save(Company(CompanyType.NAVER, active = false)))
+        companies.add(companyRepository.save(Company(CompanyType.GOOGLE)))
+        companies.add(companyRepository.save(Company(CompanyType.DAUM)))
     }
 
     @DisplayName("전체 조회를 하면 Company 목록이 조회된다.")
@@ -32,8 +36,8 @@ class CompanyRepositoryTest(@Autowired private val companyRepository: CompanyRep
         //when
         val companies = companyRepository.findAll()
         //then
-        Assertions.assertThat(companies).isNotEmpty()
-        Assertions.assertThat(companies.size).isEqualTo(3)
+        assertThat(companies).isNotEmpty()
+        assertThat(companies.size).isEqualTo(3)
     }
 
     @DisplayName("active 여부로 조회를 하면 Company 목록이 조회된다.")
@@ -42,8 +46,34 @@ class CompanyRepositoryTest(@Autowired private val companyRepository: CompanyRep
         //when
         val companies = companyRepository.searchActiveCompanies()
         //then
-        Assertions.assertThat(companies).isNotEmpty()
-        Assertions.assertThat(companies.size).isEqualTo(2)
+        assertThat(companies).isNotEmpty()
+        assertThat(companies.size).isEqualTo(2)
+    }
+
+    @DisplayName("company를 활성화하면 데이터베이스에서 수정된다.")
+    @Test
+    fun givenCompany_whenActivateCompany_thenUpdateCompany() {
+        //given
+        val company = companies[0]
+        //when
+        company.active = true
+        companyRepository.flush()
+        //then
+        val updatedCompany = companyRepository.searchActiveCompanies().first { it.id == CompanyType.NAVER }
+        assertThat(updatedCompany.active).isTrue()
+    }
+
+    @DisplayName("company를 비활성화 하면 데이터베이스에서 수정된다.")
+    @Test
+    fun givenCompany_whenDeactivateCompany_thenUpdateCompany() {
+        //given
+        val company = companies[1]
+        //when
+        company.active = false
+        companyRepository.flush()
+        //then
+        val activeCompanies = companyRepository.searchActiveCompanies()
+        assertThat(activeCompanies).hasSize(1)
     }
 
 }
