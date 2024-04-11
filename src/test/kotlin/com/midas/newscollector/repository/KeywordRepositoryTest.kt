@@ -56,6 +56,35 @@ class KeywordRepositoryTest(@Autowired private val keywordRepository: KeywordRep
         assertThat(keyword?.active).isTrue()
     }
 
+    @DisplayName("키워드를 활성화하면 keyword가 업데이트된다.")
+    @Test
+    fun givenKeyword_whenActivateKeyword_thenUpdateKeyword() {
+        //given
+        val keyword = Keyword(name = "코로나", active = false)
+        keywordRepository.saveAndFlush(keyword)
+        //when
+        keyword.active = true
+        keywordRepository.flush()
+        //then
+        val keywords = keywordRepository.searchActiveKeywords()
+        assertThat(keywords).isNotEmpty
+        assertThat(keywords).hasSize(1)
+    }
+
+    @DisplayName("키워드를 비활성화하면 keyword가 업데이트된다.")
+    @Test
+    fun givenKeyword_whenDeactivateKeyword_thenUpdateKeyword() {
+        //given
+        val keyword = Keyword("코로나")
+        keywordRepository.saveAndFlush(keyword)
+        //when
+        keyword.active = false
+        keywordRepository.flush()
+        //then
+        val keywords = keywordRepository.searchActiveKeywords()
+        assertThat(keywords).isEmpty()
+    }
+
     private fun createKeyword(name: String, isActive: Boolean = true): Keyword {
         val keyword = Keyword(name = name, active = isActive)
         return keywordRepository.save(keyword)
