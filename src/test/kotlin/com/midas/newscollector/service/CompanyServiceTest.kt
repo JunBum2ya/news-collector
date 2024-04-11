@@ -2,91 +2,101 @@ package com.midas.newscollector.service
 
 import com.midas.newscollector.domain.Company
 import com.midas.newscollector.domain.constant.CompanyType
+import com.midas.newscollector.dto.response.ResponseStatus
+import com.midas.newscollector.exception.CustomException
 import com.midas.newscollector.repository.CompanyRepository
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.then
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
-import java.util.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.throwable.shouldHaveMessage
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.springframework.data.repository.findByIdOrNull
 
-@DisplayName("비즈니스 로직 - 뉴스 사이트")
-@ExtendWith(MockitoExtension::class)
-class CompanyServiceTest {
-    @InjectMocks
-    private lateinit var companyService: CompanyService
+class CompanyServiceTest: BehaviorSpec({
 
-    @Mock
-    private lateinit var companyRepository: CompanyRepository
+    val companyRepository = mockk<CompanyRepository>()
+    val companyService = CompanyService(companyRepository)
 
-    @DisplayName("전체 조회를 하면 CompanyDto 리스트가 반환된다.")
-    @Test
-    fun givenNothing_whenSearchAllCompany_thenReturnsCompanyDtoList() {
-        //given
-        given(companyRepository.findAll()).willReturn(createCompanies())
-        //when
-        val companies = companyService.getAllCompanies()
-        //then
-        then(companyRepository).should().findAll()
-        assertThat(companies).isNotEmpty
-        assertThat(companies.size).isEqualTo(3)
+    Given("아무것도 주어지지 않은 상태에서") {
+        every { companyRepository.findAll() }.returns(createCompanies())
+        When("전체 조회를 하면") {
+            val companies = companyService.getAllCompanies()
+            Then("CompanyDto 리스트가 반환된다.") {
+                companies shouldHaveSize 3
+                verify { companyRepository.findAll() }
+            }
+        }
     }
-
-    @DisplayName("활성화된 사이트 조회를 하면 CompanyDto 리스트가 반환된다.")
-    @Test
-    fun givenNothing_whenSearchActiveCompanies_thenReturnsCompanyDtoSet() {
-        //given
-        val activeTestCompanies = createCompanies().filter { it.active }.toList()
-        given(companyRepository.searchActiveCompanies()).willReturn(activeTestCompanies)
-        //when
-        val activeCompanies = companyService.getAllActiveCompanyList()
-        //then
-        then(companyRepository).should().searchActiveCompanies()
-        assertThat(activeCompanies).isNotEmpty
-        assertThat(activeCompanies.size).isEqualTo(2)
+    Given("아무것도 주어지지 않은 상태에서") {
+        every { companyRepository.searchActiveCompanies() }.returns(createCompanies().filter { it.active })
+        When("활성화된 뉴스플랫폼을 조회하면") {
+            val activeCompanies = companyService.getAllActiveCompanyList()
+            Then("CompanyDto 리스트가 반환된다") {
+                activeCompanies shouldHaveSize 2
+                verify { companyRepository.searchActiveCompanies() }
+            }
+        }
     }
-
-    @DisplayName("CompanyType으로 활성화를 하면 CompanyDto가 반환된다.")
-    @Test
-    fun givenCompanyDto_whenActivateCompany_thenReturnsCompanyDto() {
-        //given
-        given(companyRepository.findById(any(CompanyType::class.java))).willReturn(
-            Optional.of(Company(id = CompanyType.NAVER, active = false))
-        )
-        //when
-        val companyDto = companyService.activateCompany(CompanyType.NAVER)
-        //then
-        then(companyRepository).should().findById(any(CompanyType::class.java))
-        assertThat(companyDto).isNotNull
-        assertThat(companyDto.active).isTrue()
+    Given("CompanyType으로") {
+        val companyType = CompanyType.NAVER
+        When("뉴스플랫폼을 활성화를 하면") {
+            every { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+                .returns(Company(companyType, active = false))
+            val company = companyService.activateCompany(companyType)
+            Then("CompanyDto가 반환된다.") {
+                company.shouldNotBeNull()
+                company.companyType shouldBe companyType
+                company.active shouldBe true
+                verify { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+            }
+        }
+        When("존재하지 않는 뉴스 플랫폼을 활성화하면") {
+            every { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+                .returns(null)
+            Then("CustomException이 발생된다.") {
+                val exception = shouldThrow<CustomException> { companyService.activateCompany(companyType) }
+                exception.code shouldBe ResponseStatus.ACCESS_NOT_EXIST_ENTITY.code
+                exception shouldHaveMessage ResponseStatus.ACCESS_NOT_EXIST_ENTITY.message
+                verify { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+            }
+        }
     }
-
-    @DisplayName("CompanyType으로 비활성화를 하면 CompanyDto가 반환된다.")
-    @Test
-    fun givenCompanyDto_whenDeactivateCompany_thenReturnsCompanyDto() {
-        //given
-        given(companyRepository.findById(any(CompanyType::class.java))).willReturn(
-            Optional.of(Company(id = CompanyType.NAVER, active = true))
-        )
-        //when
-        val companyDto = companyService.deactivateCompany(CompanyType.NAVER)
-        //then
-        then(companyRepository).should().findById(any(CompanyType::class.java))
-        assertThat(companyDto).isNotNull
-        assertThat(companyDto.active).isFalse()
+    Given("CompanyType으로") {
+        val companyType = CompanyType.NAVER
+        When("뉴스 플랫폼을 비활성화 하면") {
+            every { companyRepository.findByIdOrNull(any(CompanyType::class)) }.returns(Company(companyType))
+            val company = companyService.deactivateCompany(companyType)
+            Then("CompanyDto가 반환된다.") {
+                company shouldNotBe null
+                company.companyType shouldBe companyType
+                company.active shouldBe false
+                verify { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+            }
+        }
+        When("존재하지 않는 뉴스 플랫폼을 비활성화하면") {
+            every { companyRepository.findByIdOrNull(any(CompanyType::class)) }.returns(null)
+            Then("CustomException이 발생한다.") {
+                val exception = shouldThrow<CustomException> { companyService.deactivateCompany(companyType) }
+                exception.code shouldBe ResponseStatus.ACCESS_NOT_EXIST_ENTITY.code
+                exception shouldHaveMessage ResponseStatus.ACCESS_NOT_EXIST_ENTITY.message
+                verify { companyRepository.findByIdOrNull(any(CompanyType::class)) }
+            }
+        }
     }
-
-    private fun createCompanies(): List<Company> {
-        return listOf(
-            Company(id = CompanyType.GOOGLE, active = true),
-            Company(id = CompanyType.GOOGLE, active = true),
-            Company(id = CompanyType.NAVER, active = false)
-        )
+}) {
+    companion object {
+        private fun createCompanies(): List<Company> {
+            return listOf(
+                Company(id = CompanyType.GOOGLE, active = true),
+                Company(id = CompanyType.GOOGLE, active = true),
+                Company(id = CompanyType.NAVER, active = false)
+            )
+        }
     }
 
 }
