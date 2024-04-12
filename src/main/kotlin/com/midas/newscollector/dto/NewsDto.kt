@@ -27,7 +27,7 @@ data class NewsDto(
     }
 
     companion object {
-        fun of(news: News): NewsDto {
+        fun from(news: News): NewsDto {
             return NewsDto(
                 publisher = news.getPublisher(),
                 title = news.getTitle(),

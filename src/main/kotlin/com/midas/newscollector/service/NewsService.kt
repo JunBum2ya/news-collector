@@ -8,6 +8,7 @@ import com.midas.newscollector.exception.CustomException
 import com.midas.newscollector.repository.NewsRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +24,7 @@ class NewsService(private val newsRepository: NewsRepository) {
      */
     @Transactional(readOnly = true)
     fun searchNews(param: NewsSearchParam, pageable: Pageable): Page<NewsDto> {
-        return newsRepository.searchNews(param, pageable).map(NewsDto::of)
+        return newsRepository.searchNews(param, pageable).map(NewsDto::from)
     }
 
     /**
@@ -31,18 +32,17 @@ class NewsService(private val newsRepository: NewsRepository) {
      */
     fun createNews(newsDto: NewsDto): NewsDto {
         val news = newsRepository.getNewsByUrl(newsDto.url) ?: newsRepository.save(newsDto.toEntity())
-        news.update(newsDto)
-        return NewsDto.of(news)
+        return NewsDto.from(news)
     }
 
     /**
      * 뉴스 수정 메소드
      */
     fun updateNews(newsId: Long, newsDto: NewsDto): NewsDto {
-        val news = newsRepository.findById(newsId)
-            .orElseThrow { CustomException(ResponseStatus.ACCESS_NOT_EXIST_ENTITY) }
+        val news = newsRepository.findByIdOrNull(newsId)
+            ?: throw CustomException(ResponseStatus.ACCESS_NOT_EXIST_ENTITY)
         news.update(newsDto)
-        return NewsDto.of(news)
+        return NewsDto.from(news)
     }
 
     /**
