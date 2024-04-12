@@ -27,7 +27,7 @@ class CompanyRestController(private val companyService: CompanyService) {
     @GetMapping
     fun getCompanies(): ResponseEntity<CommonResponse<List<CompanyResponse>>> {
         val companies = companyService.getAllCompanies().map { CompanyResponse.of(it) }
-        return ResponseEntity.ok(CommonResponse.of(ResponseStatus.SUCCESS, companies))
+        return ResponseEntity.ok(CommonResponse.of(companies))
     }
 
     /**
