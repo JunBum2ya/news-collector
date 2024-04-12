@@ -1,87 +1,77 @@
 package com.midas.newscollector.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.midas.newscollector.config.TestSecurityConfig
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.midas.newscollector.domain.constant.CompanyType
 import com.midas.newscollector.dto.CompanyDto
 import com.midas.newscollector.dto.request.CompanyRequest
+import com.midas.newscollector.dto.response.CompanyResponse
+import com.midas.newscollector.dto.response.ResponseStatus
+import com.midas.newscollector.handler.CustomExceptionHandler
 import com.midas.newscollector.service.CompanyService
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.*
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Import
+import io.kotest.core.spec.style.DescribeSpec
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.context.WebApplicationContext
 
-@DisplayName("View 컨트롤러 - 뉴스 사이트")
-@WebMvcTest(CompanyRestController::class)
-@Import(TestSecurityConfig::class)
-class CompanyRestControllerTest(@Autowired val mvc: MockMvc) {
-    @MockBean
-    private lateinit var companyService: CompanyService
-    private val objectMapper = ObjectMapper()
+class CompanyRestControllerTest : DescribeSpec({
+    val companyService = mockk<CompanyService>()
+    val companyRestController = CompanyRestController(companyService)
+    val customExceptionHandler = CustomExceptionHandler()
+    val mapper = ObjectMapper().registerModule(JavaTimeModule())
 
-    @DisplayName("[view][GET] 전체 검색 사이트 조회")
-    @Test
-    fun givenNothing_whenRequestAllCompanies_thenReturnsAllCompanies() {
-        //given
-        val companyDtoList: List<CompanyDto> = listOf(
+    val mvc = MockMvcBuilders.standaloneSetup(companyRestController,customExceptionHandler).build()
+
+    describe("[view][GET] 전체 검색 조회") {
+        val companyList = listOf(
             CompanyDto(companyType = CompanyType.NAVER, active = true),
             CompanyDto(companyType = CompanyType.GOOGLE, active = true),
             CompanyDto(companyType = CompanyType.DAUM, active = false)
         )
-        given(companyService.getAllCompanies()).willReturn(companyDtoList)
-        //when
-        mvc.perform(MockMvcRequestBuilders.get("/company").header("api-key", "0000"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("200"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data").isArray())
-
-        //then
-        then(companyService).should().getAllCompanies()
+        every { companyService.getAllCompanies() }.returns(companyList)
+        it("정상 호출") {
+            mvc.perform(get("/company"))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(ResponseStatus.SUCCESS.code))
+                .andExpect(jsonPath("$.data").isArray)
+            verify { companyService.getAllCompanies() }
+        }
+    }
+    describe("[view][POST] 뉴스 플랫폼 활성화") {
+        every { companyService.activateCompany(any(CompanyType::class)) }.returns(CompanyDto(companyType = CompanyType.NAVER))
+        it("정상 호출") {
+            val request = CompanyRequest(companyName = "GOOGLE")
+            mvc.perform(
+                post("/company")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(request))
+            )
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(ResponseStatus.SUCCESS.code))
+                .andExpect(jsonPath("$.data").isMap)
+            verify { companyService.activateCompany(any(CompanyType::class)) }
+        }
+    }
+    describe("[view][DELETE] 뉴스 플랫폼 비활성화") {
+        val company = CompanyDto(companyType = CompanyType.NAVER)
+        every { companyService.deactivateCompany(any(CompanyType::class)) }.returns(company)
+        it("should return 200") {
+            mvc.perform(delete("/company")
+                .queryParam("companyName","GOOGLE"))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(ResponseStatus.SUCCESS.code))
+                .andExpect(jsonPath("$.data").isMap)
+            verify { companyService.deactivateCompany(any(CompanyType::class)) }
+        }
     }
 
-    @DisplayName("[view][POST] 검색 사이트 활성화")
-    @Test
-    @Throws(Exception::class)
-    fun givenCompanyRequest_whenRequestActivateCompany_thenReturnsCompany() {
-        //given
-        val companyRequest = CompanyRequest(companyName = "NAVER")
-        given(companyService.activateCompany(CompanyType.NAVER))
-            .willReturn(CompanyDto(companyType = CompanyType.NAVER, active = true))
-        //when
-        mvc.perform(
-            post("/company")
-                .header("api-key", "0000")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(companyRequest))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-        //then
-        then(companyService).should().activateCompany(CompanyType.NAVER)
-    }
-
-    @DisplayName("[view][DELETE] 검색 사이트 비활성화")
-    @Test
-    @Throws(Exception::class)
-    fun givenCompanyRequest_whenRequestDeactivateCompany_thenReturnsCompany() {
-        //given
-        given(companyService.deactivateCompany(CompanyType.NAVER))
-            .willReturn(CompanyDto(companyType = CompanyType.NAVER, active = true))
-        //when
-        mvc.perform(
-            delete("/company")
-                .header("api-key", "0000")
-                .param("companyName","NAVER")
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-        //then
-        then(companyService).should().deactivateCompany(CompanyType.NAVER)
-    }
-
-}
+})
