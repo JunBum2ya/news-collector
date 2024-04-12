@@ -7,6 +7,7 @@ import java.util.stream.Collectors
  * DTO for {@link com.midas.newscollector.domain.News}
  */
 data class NewsDto(
+    val newsId: Long? = null,
     val publisher: String,
     val title: String,
     val thumbnailPath: String? = null,
@@ -29,6 +30,7 @@ data class NewsDto(
     companion object {
         fun from(news: News): NewsDto {
             return NewsDto(
+                newsId = news.getId(),
                 publisher = news.getPublisher(),
                 title = news.getTitle(),
                 thumbnailPath = news.getThumbnail(),

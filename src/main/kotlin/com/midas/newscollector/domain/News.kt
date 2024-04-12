@@ -19,6 +19,10 @@ class News(
     @Column(name = "id", nullable = false)
     private var id: Long? = null
 
+    fun getId(): Long? {
+        return this.id
+    }
+
     fun getPublisher(): String {
         return this.publisher
     }

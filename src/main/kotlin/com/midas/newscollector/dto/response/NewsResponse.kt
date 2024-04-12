@@ -4,6 +4,7 @@ import com.midas.newscollector.dto.NewsDto
 import java.time.LocalDateTime
 
 data class NewsResponse(
+    val newsId: Long?,
     val publisher: String,
     val title: String,
     val thumbnailPath: String?,
@@ -14,6 +15,7 @@ data class NewsResponse(
     companion object {
         fun from(newsDto: NewsDto): NewsResponse {
             return NewsResponse(
+                newsId = newsDto.newsId,
                 publisher = newsDto.publisher,
                 title = newsDto.title,
                 thumbnailPath = newsDto.thumbnailPath,
