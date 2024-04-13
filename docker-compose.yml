@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  news-database:
+    image: postgres:latest
+    container_name: news_database_container
+    environment:
+      POSTGRES_DB: NEWS_DATABASE  # 데이터베이스 이름
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}    # 사용자 이름
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}  # 사용자 비밀번호
+    ports:
+      - "5432:5432"  # 호스트 포트:컨테이너 포트
+  news-spring-app:
+    container_name: news_app_container
+    build: .
+    depends_on:
+      - news-database
+    restart: always
+    image: 22cun2/news-collector-spring-app
+    environment:
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    ports:
+      - "8081:8080"

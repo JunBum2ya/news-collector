@@ -85,6 +85,9 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.bootJar {
+    archiveFileName = "app.jar"
+}
 
 /**
  * QueryDSL Build Options

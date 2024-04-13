@@ -30,9 +30,11 @@ spring:
 spring:
   config:
     activate:
-      on-profile: heroku
+      on-profile: prod
   datasource:
-    url: {DATABASE_URL}
+    url: jdbc:postgresql://news-database:5432/NEWS_DATABASE
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create
