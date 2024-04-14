@@ -18,12 +18,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        default_batch_fetch_size: 100
+        default_batch_fetch_size:
   thymeleaf3:
     decoupled-logic: true
   sql:
     init:
       mode: always
+jwt:
+  header: Authorization
+  secret: a2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbXRva2FyaW10b2thcmltdG9rYXJpbQ==
+  access-token-validity-in-seconds: 1800
+  refresh-token-validity-in-seconds: 86400
 
 ---
 
