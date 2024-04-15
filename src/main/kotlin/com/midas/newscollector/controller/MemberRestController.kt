@@ -35,7 +35,7 @@ class MemberRestController(val authenticationService: AuthenticationService) {
     @PostMapping("/register-member")
     fun registerMember(@Valid @RequestBody request: MemberRequest): ResponseEntity<CommonResponse<TokenResponse>> {
         val token = authenticationService.registerMember(request.toDto())
-        return ResponseEntity.ok(CommonResponse.Companion.of(TokenResponse.from(token)))
+        return ResponseEntity.ok(CommonResponse.of(TokenResponse.from(token)))
     }
 
     /**

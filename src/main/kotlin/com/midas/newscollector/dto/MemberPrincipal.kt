@@ -6,8 +6,8 @@ import java.time.LocalDateTime
 
 data class MemberPrincipal(
     val memberId: String,
-    val password: String,
-    val authorities: MutableList<GrantedAuthority>,
+    private val password: String,
+    private val authorities: MutableList<GrantedAuthority>,
     val email: String,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
