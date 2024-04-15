@@ -1,6 +1,7 @@
 package com.midas.newscollector.dto
 
 import com.midas.newscollector.domain.Member
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.io.Serializable
 import java.time.LocalDateTime
 
@@ -14,12 +15,12 @@ data class MemberDto(
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
 ) {
-    fun toEntity(): MemberDto {
-        return MemberDto(memberId = memberId, email = email, password = password)
+    fun toEntity(passwordEncoder: PasswordEncoder): Member {
+        return Member(memberId = memberId, email = email, password = passwordEncoder.encode(password))
     }
 
     companion object {
-        fun of(member: Member): MemberDto {
+        fun from(member: Member): MemberDto {
             return MemberDto(
                 memberId = member.memberId,
                 email = member.getEmail(),
