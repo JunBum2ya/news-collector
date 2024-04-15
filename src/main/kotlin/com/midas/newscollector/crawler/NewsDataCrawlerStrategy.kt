@@ -9,14 +9,17 @@ import java.util.stream.Collectors
 
 @Transactional
 @Component
-class NewsDataCrawlerStrategy(private val companyService: CompanyService, private val newsService: NewsService) {
+class NewsDataCrawlerStrategy(
+    private val companyService: CompanyService,
+    private val newsService: NewsService,
+    private val newsDataCrawlerFactory: NewsDataCrawlerFactory
+) {
     fun crawlNews(keyword: String): List<NewsDto> {
-        val factory = NewsDataCrawlerFactory()
         val companies = companyService.getAllActiveCompanyList()
             .stream()
             .map { it.companyType }
             .collect(Collectors.toSet())
-        val crawlers = factory.newInstance(companies)
+        val crawlers = newsDataCrawlerFactory.newInstance(companies)
         val newsList = crawlers
             .flatMap { it.searchNewsList(keyword) }
             .map { newsService.createNews(it) }
@@ -24,12 +27,11 @@ class NewsDataCrawlerStrategy(private val companyService: CompanyService, privat
     }
 
     fun crawlNews(keywords: List<String>): List<NewsDto> {
-        val factory = NewsDataCrawlerFactory()
         val companies = companyService.getAllActiveCompanyList()
             .stream()
             .map { it.companyType }
             .collect(Collectors.toSet())
-        val crawlers = factory.newInstance(companies)
+        val crawlers = newsDataCrawlerFactory.newInstance(companies)
         val newsList = crawlers.flatMap { it.searchNewsList(keywords) }.map { newsService.createNews(it) }
         return newsList
     }

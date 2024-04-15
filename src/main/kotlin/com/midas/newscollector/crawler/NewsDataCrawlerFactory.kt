@@ -1,7 +1,9 @@
 package com.midas.newscollector.crawler
 
 import com.midas.newscollector.domain.constant.CompanyType
+import org.springframework.stereotype.Component
 
+@Component
 class NewsDataCrawlerFactory {
     fun newInstance(type: CompanyType): NewsDataCrawler {
         return when (type) {

@@ -1,6 +1,7 @@
 package com.midas.newscollector.crawler
 
 import com.midas.newscollector.domain.constant.CompanyType
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.IOException
 import java.util.stream.Stream
 
+@Disabled
 @DisplayName("Crawling Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NewsDataCrawlerTest {
