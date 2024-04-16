@@ -31,7 +31,7 @@ class KeywordServiceTest : BehaviorSpec({
         }
     }
     Given("키워드 이름으로") {
-        every { crawlerStrategy.crawlNews(any(String::class)) }.returns(listOf())
+        every { crawlerStrategy.crawlNews(any(Keyword::class)) }.returns(listOf())
         every { keywordRepository.save(any(Keyword::class)) }.returns(Keyword(name = "코로나", active =  false))
         When("이미 저장되어 있는 키워드를 활성화 하면") {
             every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(name = "코로나", active = false))
@@ -40,7 +40,7 @@ class KeywordServiceTest : BehaviorSpec({
                 keyword shouldNotBe null
                 keyword.active shouldBe true
                 verify { keywordRepository.getKeywordByName(any(String::class)) }
-                verify { crawlerStrategy.crawlNews(any(String::class)) }
+                verify { crawlerStrategy.crawlNews(any(Keyword::class)) }
             }
         }
         When("저장되지 않은 키워드를 활성화 하면") {
@@ -51,7 +51,7 @@ class KeywordServiceTest : BehaviorSpec({
                 keyword.active shouldBe true
                 verify { keywordRepository.getKeywordByName(any(String::class)) }
                 verify { keywordRepository.save(any(Keyword::class)) }
-                verify { crawlerStrategy.crawlNews(any(String::class)) }
+                verify { crawlerStrategy.crawlNews(any(Keyword::class)) }
             }
         }
     }

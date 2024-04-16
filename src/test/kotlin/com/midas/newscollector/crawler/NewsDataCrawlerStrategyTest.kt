@@ -29,17 +29,17 @@ class NewsDataCrawlerStrategyTest : BehaviorSpec({
         every { companyService.getAllActiveCompanyList() }
             .returns(listOf(CompanyDto(CompanyType.NAVER),CompanyDto(CompanyType.DAUM)))
         every { newsDataCrawlerFactory.newInstance(setOf(CompanyType.NAVER,CompanyType.DAUM)) }.returns(listOf(TestNewsDataCrawler()))
-        every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(id = 1L, name = keyword))
+        //every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(id = 1L, name = keyword))
         every { newsRepository.getNewsByUrl(any(String::class)) }.returns(null)
         every { newsRepository.save(any(News::class)) }.returns(createNews())
         When("뉴스를 크롤링하고") {
-            val newsList = newsDataCrawlerStrategy.crawlNews(keyword)
+            val newsList = newsDataCrawlerStrategy.crawlNews(Keyword(name = keyword))
             Then("NewsDto 리스트를 반환한다.") {
                 newsList shouldHaveSize 1
                 newsList[0].keywords shouldHaveSize 1
                 verify { companyService.getAllActiveCompanyList() }
                 verify { newsDataCrawlerFactory.newInstance(setOf(CompanyType.NAVER,CompanyType.DAUM)) }
-                verify { keywordRepository.getKeywordByName(any(String::class)) }
+                //verify { keywordRepository.getKeywordByName(any(String::class)) }
                 verify { newsRepository.getNewsByUrl(any(String::class)) }
                 verify { newsRepository.save(any(News::class)) }
             }
@@ -59,7 +59,7 @@ class NewsDataCrawlerStrategyTest : BehaviorSpec({
                 newsList[0].keywords shouldHaveSize 1
                 verify { companyService.getAllActiveCompanyList() }
                 verify { newsDataCrawlerFactory.newInstance(setOf(CompanyType.NAVER,CompanyType.DAUM)) }
-                verify { keywordRepository.getKeywordByName(any(String::class)) }
+                verify { keywordRepository.searchActiveKeywords() }
                 verify { newsRepository.getNewsByUrl(any(String::class)) }
                 verify { newsRepository.save(any(News::class)) }
             }
