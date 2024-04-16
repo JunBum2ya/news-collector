@@ -48,7 +48,7 @@ class NaverNewsDataCrawler : NewsDataCrawler {
             title = if (titleElement != null) titleElement.text() else "",
             description = element.selectFirst(".news_contents .news_dsc .dsc_wrap a").text(),
             url = if (titleElement != null) titleElement.attr("href") else "",
-            keywords = mutableSetOf(KeywordDto(keyword))
+            keywords = mutableSetOf(KeywordDto(name = keyword))
         )
     }
 

@@ -75,7 +75,7 @@ class KeywordRepositoryTest(@Autowired private val keywordRepository: KeywordRep
     @Test
     fun givenKeyword_whenDeactivateKeyword_thenUpdateKeyword() {
         //given
-        val keyword = Keyword("코로나")
+        val keyword = Keyword(name = "코로나")
         keywordRepository.saveAndFlush(keyword)
         //when
         keyword.active = false

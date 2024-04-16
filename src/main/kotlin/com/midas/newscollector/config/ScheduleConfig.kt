@@ -11,7 +11,6 @@ import java.io.IOException
 @EnableScheduling
 @Configuration
 class ScheduleConfig(
-    private val keywordService: KeywordService,
     private val newsDataCrawlerStrategy: NewsDataCrawlerStrategy
 ) {
     /**
@@ -21,7 +20,6 @@ class ScheduleConfig(
     @Scheduled(cron = "0 0 * * * *")
     @Throws(IOException::class)
     fun crawlingNewsData(): List<NewsDto> {
-        val keywords: List<String> = keywordService.getActiveKeywords().stream().map { it.name }.toList()
-        return newsDataCrawlerStrategy.crawlNews(keywords)
+        return newsDataCrawlerStrategy.crawlNews()
     }
 }

@@ -21,7 +21,7 @@ class KeywordServiceTest : BehaviorSpec({
     val keywordService = KeywordService(keywordRepository, crawlerStrategy)
 
     Given("아무것도 주어지지 않았을 때") {
-        every { keywordRepository.searchActiveKeywords() }.returns(listOf(Keyword("선거"), Keyword(name = "코로나")))
+        every { keywordRepository.searchActiveKeywords() }.returns(listOf(Keyword(name = "선거"), Keyword(name = "코로나")))
         When("활성화된 키워드를 조회하면") {
             val keywords = keywordService.getActiveKeywords()
             Then("키워드 리스트가 반환된다.") {
@@ -32,9 +32,9 @@ class KeywordServiceTest : BehaviorSpec({
     }
     Given("키워드 이름으로") {
         every { crawlerStrategy.crawlNews(any(String::class)) }.returns(listOf())
-        every { keywordRepository.save(any(Keyword::class)) }.returns(Keyword("코로나", false))
+        every { keywordRepository.save(any(Keyword::class)) }.returns(Keyword(name = "코로나", active =  false))
         When("이미 저장되어 있는 키워드를 활성화 하면") {
-            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword("코로나", active = false))
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(name = "코로나", active = false))
             val keyword = keywordService.activateKeyword("코로나")
             Then("수정 후 KeywordDto가 반환된다.") {
                 keyword shouldNotBe null
@@ -58,7 +58,7 @@ class KeywordServiceTest : BehaviorSpec({
     Given("키워드 이름으로") {
         val keywordName = "코로나"
         When("이미 저장된 키워드를 비활성화 하면") {
-            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(keywordName, true))
+            every { keywordRepository.getKeywordByName(any(String::class)) }.returns(Keyword(name = keywordName, active =  true))
             val keyword = keywordService.deactivateKeyword(keywordName)
             Then("수정 후 KeywordDto가 반환된다.") {
                 keyword shouldNotBe null
