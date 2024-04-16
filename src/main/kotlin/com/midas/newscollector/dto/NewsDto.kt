@@ -36,7 +36,7 @@ data class NewsDto(
                 thumbnailPath = news.getThumbnail(),
                 description = news.getDescription(),
                 url = news.getUrl(),
-                keywords = news.keywords.stream().map { KeywordDto.of(it.keyword) }.collect(Collectors.toSet())
+                keywords = news.keywords.stream().map { KeywordDto.of(it) }.collect(Collectors.toSet())
             )
         }
     }

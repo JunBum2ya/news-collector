@@ -27,7 +27,7 @@ class NewsRepositoryTest(@Autowired private val newsRepository: NewsRepository) 
         news.addKeyword(keyword = Keyword(name = "코로나"))
         news.addKeyword(keyword = Keyword(name = "보건"))
         //when
-        val savedNews: News = newsRepository.save(news)
+        val savedNews: News = newsRepository.saveAndFlush(news)
         //then
         assertThat(savedNews).isNotNull()
         assertThat(savedNews.getTitle()).isEqualTo("코로나 증가")

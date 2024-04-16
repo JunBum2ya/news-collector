@@ -12,7 +12,9 @@ class News(
     @Column(length = 1000) @Comment("썸네일 이미지 경로") private var thumbnailPath: String? = null,
     @Column(nullable = false) @Comment("기사 내용") private var description: String,
     @Column(nullable = false, unique = true, length = 500) @Comment("기사 페이지 링크 주소") private var url: String,
-    @OneToMany(mappedBy = "news") val keywords: MutableSet<KeywordNews> = mutableSetOf()
+    @ManyToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.LAZY)
+    @JoinTable(name = "news_keyword", joinColumns = [JoinColumn(name = "news")], inverseJoinColumns = [JoinColumn(name = "keyword")])
+    val keywords: MutableList<Keyword> = mutableListOf()
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -52,8 +54,7 @@ class News(
     }
 
     fun addKeyword(keyword: Keyword) {
-        val keywordNews = KeywordNews(keyword = keyword, news = this)
-        this.keywords.add(keywordNews)
+        this.keywords.add(keyword)
     }
 
     override fun equals(other: Any?): Boolean {
