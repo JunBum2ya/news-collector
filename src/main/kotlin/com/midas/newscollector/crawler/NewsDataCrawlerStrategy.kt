@@ -20,14 +20,12 @@ class NewsDataCrawlerStrategy(
     private val newsRepository: NewsRepository,
     private val keywordRepository: KeywordRepository
 ) {
-    fun crawlNews(keyword: String): List<NewsDto> {
+    fun crawlNews(keyword: Keyword): List<NewsDto> {
         val companies = companyService.getAllActiveCompanyList()
             .map { it.companyType }
             .toSet()
         val crawlers = newsDataCrawlerFactory.newInstance(companies)
-        val keywordEntity = keywordRepository.getKeywordByName(keyword)
-            ?: throw CustomException(ResponseStatus.ACCESS_NOT_EXIST_ENTITY, "Keyword does not exist")
-        return crawlers.flatMap { crawlNews(keywordEntity, it) }
+        return crawlers.flatMap { crawlNews(keyword, it) }
     }
 
     fun crawlNews(): List<NewsDto> {

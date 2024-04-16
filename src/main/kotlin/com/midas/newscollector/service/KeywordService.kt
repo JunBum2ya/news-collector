@@ -29,7 +29,7 @@ class KeywordService(private val keywordRepository: KeywordRepository, private v
         val keyword = keywordRepository.getKeywordByName(keywordStr)
             ?: keywordRepository.save(Keyword(name = keywordStr))
         keyword.active = true //활성화
-        newsCrawlerStrategy.crawlNews(keywordStr) //크롤링 실행
+        newsCrawlerStrategy.crawlNews(keyword) //크롤링 실행
         return KeywordDto.of(keyword)
     }
 

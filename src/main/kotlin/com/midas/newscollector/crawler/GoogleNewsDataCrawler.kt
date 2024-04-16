@@ -56,8 +56,7 @@ class GoogleNewsDataCrawler : NewsDataCrawler {
             title = element.select(".n0jPhd").text(),
             description = element.select(".GI74Re").text(),
             thumbnailPath = thumbnailElement?.attr("attr"),
-            url = element.selectFirst(".WlydOe").attr("href"),
-            keywords = mutableSetOf(KeywordDto(name = keyword))
+            url = element.selectFirst(".WlydOe").attr("href")
         )
     }
 
