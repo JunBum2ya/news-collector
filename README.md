@@ -8,6 +8,8 @@
 1. kotest로 controller, service, model 영역의 테스트 구현
 2. REST API 구현
 
+## 추후 리액트와 연동
+
 ## 스택
 1. spring boot
 2. postgresql
