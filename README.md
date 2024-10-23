@@ -10,7 +10,7 @@
 3. batch 적용
 
 ## 추후 리액트와 연동
-
+프론트엔드
 ## 스택
 1. spring boot
 2. postgresql
