@@ -11,6 +11,7 @@
 
 ## 추후 리액트와 연동
 프론트엔드
+api 수정
 ## 스택
 1. spring boot
 2. postgresql
