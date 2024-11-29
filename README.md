@@ -18,3 +18,4 @@ api 수정
 3. JPA
 4. kotest
 5. docker
+6. 뉴스 api를 찾을 필요가 있음
