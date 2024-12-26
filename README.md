@@ -8,6 +8,7 @@
 1. kotest로 controller, service, model 영역의 테스트 구현
 2. REST API 구현
 3. batch 적용 
+4. 스케줄러 적용
 
 ## 추후 리액트와 연동
 프론트엔드
